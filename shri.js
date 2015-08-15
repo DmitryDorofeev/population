@@ -44,7 +44,6 @@ function getData(url, callback) {
 /**
  * Ваши изменения ниже
  */
-
 function getPromiseData(url) {
 	return new Promise((resolve, reject) => {
 		getData(url, (error, result) => {
@@ -56,7 +55,6 @@ function getPromiseData(url) {
 		});
 	})
 }
-
 
 function getCountries() {
 	return getPromiseData('/countries');
@@ -70,31 +68,80 @@ function getPopulations() {
 	return getPromiseData('/populations');
 }
 
-Promise.all([getCountries(), getCities(), getPopulations()])
-	.then(function (responses) {
+function calculate(request) {
+	let promises = [getPopulations()];
 
-		let countries = [];
-		let cities = [];
-		let populations = 0;
+	if (request.country || request.continent) {
+		promises.push(getCities());
+	}
 
-		responses[0].forEach(function (country) {
-			if (country.continent === 'Africa') {
-				countries.push(country.name);
+	if (request.continent) {
+		promises.push(getCountries());
+	}
+
+	return Promise.all(promises)
+		.then(function (responses) {
+			let countries = [];
+			let cities = [];
+			let populations;
+
+			if (request.continent) {
+				countries = responses[2]
+					.filter((country) => {
+						return country.continent === request.continent;
+					})
+					.map((country) => {
+						return country.name;
+					})
 			}
-		});
 
-		responses[1].forEach(function (city) {
-			if (countries.indexOf(city.country) >= 0) {
-				cities.push(city.name);
+			if (request.continent || request.country) {
+				cities = responses[1]
+					.filter((city) => {
+						return (!request.country && countries.indexOf(city.country) >= 0) || (request.country && request.country === city.country);
+					})
+					.map((city) => {
+						return city.name;
+					});
 			}
-		});
 
-		responses[2].forEach(function (population) {
-			if ( cities.indexOf(population.name) >= 0) {
-				populations += population.count;
-			}
-		});
+			populations = responses[0]
+				.reduce((prev, population) => {
+					if ((!request.city && cities.indexOf(population.name) >= 0) || (request.city && population.name === request.city)) {
+						return prev + population.count;
+					} else {
+						return prev;
+					}
+				}, 0);
 
-		console.log('Total population in African cities: ' + populations);
+			return populations;
+		}, () => {
+			return 0;
+		});
+}
+
+calculate({continent: 'Africa'}).then((populations) => {
+	console.log('Total population in African cities: ' + populations);
+});
+
+document.getElementsByClassName('button')[0].addEventListener('click', () => {
+	let cityOrCountry = window.prompt('Введите название страны или города:');
+
+	calculate({ city: cityOrCountry }).then((populations) => {
+
+		if (populations === 0) {
+			calculate({ country: cityOrCountry }).then((populations) => {
+
+				if (populations === 0) {
+					console.log(`Information about city or country ${cityOrCountry} not found`);
+				} else {
+					console.log(`Total population in ${cityOrCountry}: ${populations}`);
+				}
+
+			});
+		} else {
+			console.log(`Total population in ${cityOrCountry}: ${populations}`);
+		}
 
 	});
+});
