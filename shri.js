@@ -60,7 +60,7 @@ function getPromiseData(url) {
 				resolve(result);
 			}
 		});
-	})
+	});
 }
 
 /**
@@ -116,7 +116,7 @@ function calculate(request) {
 					})
 					.map((country) => {
 						return country.name;
-					})
+					});
 			}
 
 			if (request.continent || request.country) {
