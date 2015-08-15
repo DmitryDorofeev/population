@@ -44,6 +44,12 @@ function getData(url, callback) {
 /**
  * Ваши изменения ниже
  */
+
+/**
+ * Wrap getData
+ * @param {String} url
+ * @returns {Promise}
+ */
 function getPromiseData(url) {
 	return new Promise((resolve, reject) => {
 		getData(url, (error, result) => {
@@ -56,18 +62,35 @@ function getPromiseData(url) {
 	})
 }
 
+/**
+ * Get all countries
+ * @returns {Promise}
+ */
 function getCountries() {
 	return getPromiseData('/countries');
 }
 
+/**
+ * Get all cities
+ * @returns {Promise}
+ */
 function getCities() {
 	return getPromiseData('/cities');
 }
 
+/**
+ * Gel all populations
+ * @returns {Promise}
+ */
 function getPopulations() {
 	return getPromiseData('/populations');
 }
 
+/**
+ * Calculate populations by param
+ * @param {Object} request
+ * @returns {Promise.<Number>}
+ */
 function calculate(request) {
 	let promises = [getPopulations()];
 
@@ -120,7 +143,7 @@ function calculate(request) {
 		});
 }
 
-calculate({continent: 'Africa'}).then((populations) => {
+calculate({ continent: 'Africa' }).then((populations) => {
 	console.log('Total population in African cities: ' + populations);
 });
 
@@ -133,7 +156,7 @@ document.getElementsByClassName('button')[0].addEventListener('click', () => {
 			calculate({ country: cityOrCountry }).then((populations) => {
 
 				if (populations === 0) {
-					console.log(`Information about city or country ${cityOrCountry} not found`);
+					console.log(`Any info about city or country ${cityOrCountry} not found`);
 				} else {
 					console.log(`Total population in ${cityOrCountry}: ${populations}`);
 				}
