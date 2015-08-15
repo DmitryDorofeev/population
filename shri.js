@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Реализация API, не изменяйте ее
  * @param {string} url
@@ -142,6 +143,8 @@ function calculate(request) {
 			return 0;
 		});
 }
+
+window.Promise = window.Promise || window.Q.Promise;
 
 calculate({ continent: 'Africa' }).then((populations) => {
 	console.log('Total population in African cities: ' + populations);
