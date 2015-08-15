@@ -45,43 +45,56 @@ function getData(url, callback) {
  * Ваши изменения ниже
  */
 
-var requests = ['/countries', '/cities', '/populations'];
-var responses = {};
-
-requests.forEach(function (request) {
-	var callback = function (error, result) {
-		responses[request] = result;
-		var l = [];
-		for (K in responses)
-			l.push(K);
-
-		if (l.length == 3) {
-			var c = [], cc = [], p = 0;
-			for (i = 0; i < responses['/countries'].length; i++) {
-				if (responses['/countries'][i].continent === 'Africa') {
-					c.push(responses['/countries'][i].name);
-				}
+function getPromiseData(url) {
+	return new Promise((resolve, reject) => {
+		getData(url, (error, result) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(result);
 			}
+		});
+	})
+}
 
-			for (i = 0; i < responses['/cities'].length; i++) {
-				for (j = 0; j < c.length; j++) {
-					if (responses['/cities'][i].country === c[j]) {
-						cc.push(responses['/cities'][i].name);
-					}
-				}
+
+function getCountries() {
+	return getPromiseData('/countries');
+}
+
+function getCities() {
+	return getPromiseData('/cities');
+}
+
+function getPopulations() {
+	return getPromiseData('/populations');
+}
+
+Promise.all([getCountries(), getCities(), getPopulations()])
+	.then(function (responses) {
+
+		let countries = [];
+		let cities = [];
+		let populations = 0;
+
+		responses[0].forEach(function (country) {
+			if (country.continent === 'Africa') {
+				countries.push(country.name);
 			}
+		});
 
-			for (i = 0; i < responses['/populations'].length; i++) {
-				for (j = 0; j < cc.length; j++) {
-					if (responses['/populations'][i].name === cc[j]) {
-						p += responses['/populations'][i].count;
-					}
-				}
+		responses[1].forEach(function (city) {
+			if (countries.indexOf(city.country) >= 0) {
+				cities.push(city.name);
 			}
+		});
 
-			console.log('Total population in African cities: ' + p);
-		}
-	};
+		responses[2].forEach(function (population) {
+			if ( cities.indexOf(population.name) >= 0) {
+				populations += population.count;
+			}
+		});
 
-	getData(request, callback);
-});
+		console.log('Total population in African cities: ' + populations);
+
+	});

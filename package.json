@@ -1,0 +1,27 @@
+{
+  "name": "population",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DmitryDorofeev/population.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DmitryDorofeev/population/issues"
+  },
+  "homepage": "https://github.com/DmitryDorofeev/population#readme",
+  "devDependencies": {
+    "babel": "^5.8.21",
+    "babelify": "^6.1.3",
+    "browserify": "^11.0.1",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.0",
+    "promise": "^7.0.4"
+  }
+}
